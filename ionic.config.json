@@ -1,0 +1,7 @@
+{
+  "name": "admob2",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
