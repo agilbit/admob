@@ -34,4 +34,16 @@
     <ion-item button="true" (click)="resumeBanner()">Resume Banner</ion-item>
     <ion-item button="true" lines="full" (click)="removeBanner()">Remove Banner</ion-item>
   </ion-list>
+
+  <ion-list>
+    <ion-list-header><ion-label>Interstitial
+      <ng-container *ngIf="lastInterstitialEvent$ | async as lastInterstitialEvent">
+        <br>(Last Event: {{lastInterstitialEvent.name }} | {{lastInterstitialEvent.value | json}})
+      </ng-container>
+
+    </ion-label></ion-list-header>
+
+    <ion-item button="true" (click)="prepareInterstitial()" [disabled]="isPrepareInterstitial">Prepare Interstitial</ion-item>
+    <ion-item button="true" lines="full" (click)="showInterstitial()" [disabled]="!isPrepareInterstitial">Show Interstitial</ion-item>
+  </ion-list>
 </ion-content>

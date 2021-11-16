@@ -5,7 +5,8 @@ import {
   BannerAdSize,
   BannerAdPosition,
   BannerAdPluginEvents,
-  AdMobBannerSize
+  AdMobBannerSize,
+  InterstitialAdPluginEvents, AdOptions
 } from '@capacitor-community/admob';
 import {PluginListenerHandle} from '@capacitor/core';
 import {ReplaySubject} from 'rxjs';
@@ -20,10 +21,16 @@ export class Tab1Page {
   public readonly lastBannerEvent$$ = new ReplaySubject<{name: string; value: any}>(1);
   public readonly lastBannerEvent$ = this.lastBannerEvent$$.asObservable();
 
+  public readonly lastInterstitialEvent$$ = new ReplaySubject<{name: string; value: any}>(1);
+  public readonly lastInterstitialEvent$ = this.lastInterstitialEvent$$.asObservable();
+
   public readonly bannerSizes: BannerAdSize[] = Object.keys(BannerAdSize) as BannerAdSize[];
   public currentBannerSize?: BannerAdSize;
 
   public isPrepareBanner = false;
+  public isPrepareInterstitial = false;
+
+  public isLoading = false;
 
   /**
    * Height of AdSize
@@ -47,6 +54,10 @@ export class Tab1Page {
     position: BannerAdPosition.BOTTOM_CENTER,
     isTesting: true
     // npa: false,
+  };
+
+  private interstitialOptions: AdOptions = {
+    adId: 'ca-app-pub-3940256099942544/1033173712',
   };
 
   constructor(private readonly ngZone: NgZone) {}
@@ -82,6 +93,7 @@ export class Tab1Page {
     this.listenerHandlers.push(resizeHandler);
 
     this.registerBannerListeners();
+    this.registerInterstitialListeners();
   }
 
   ionViewWillLeave() {
@@ -140,6 +152,39 @@ export class Tab1Page {
   /**
    * ==================== /BANNER ====================
    */
+
+
+  /**
+   * ==================== Interstitial ====================
+   */
+  async prepareInterstitial() {
+    this.isLoading = true;
+
+    try {
+      const result = await AdMob.prepareInterstitial(this.interstitialOptions);
+      console.log('Interstitial Prepared', result);
+      this.isPrepareInterstitial = true;
+
+    } catch (e) {
+      console.error('There was a problem preparing the Interstitial', e);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+
+  async showInterstitial() {
+    await AdMob.showInterstitial()
+      .catch(e => console.log(e));
+
+    this.isPrepareInterstitial = false;
+  }
+
+  /**
+   * ==================== /Interstitial ====================
+   */
+
+
   private registerBannerListeners(): void {
     const eventKeys = Object.keys(BannerAdPluginEvents);
 
@@ -170,6 +215,23 @@ export class Tab1Page {
     }
 
     this.isPrepareBanner = true;
+  }
+
+  private registerInterstitialListeners(): void {
+    const eventKeys = Object.keys(InterstitialAdPluginEvents);
+
+    eventKeys.forEach(key => {
+      console.log(`registering ${InterstitialAdPluginEvents[key]}`);
+      const handler = AdMob.addListener(InterstitialAdPluginEvents[key], (value) => {
+        console.log(`Interstitial Event "${key}"`, value);
+
+        this.ngZone.run(() => {
+          this.lastInterstitialEvent$$.next({name: key, value});
+        });
+
+      });
+      this.listenerHandlers.push(handler);
+    });
   }
 
 }
