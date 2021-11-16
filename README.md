@@ -21,7 +21,6 @@ This project uses a number of open source projects to work properly:
 - [Ionic] - An open source mobile toolkit for building high quality, cross-platform native and web app experiences.
 - [Capacitor Community/AdMob] - Markdown parser done right. Fast and easy to extend.
 - [node.js] - evented I/O for the backend
-- [Express] - fast node.js network app framework [@tjholowaychuk]
 
 ## Installation
 
